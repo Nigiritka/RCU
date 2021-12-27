@@ -68,8 +68,8 @@ void Error_Handler(void);
 #define FMC_NBL1_GPIO_Port GPIOE
 #define FMC_NBL0_Pin GPIO_PIN_0
 #define FMC_NBL0_GPIO_Port GPIOE
-#define ARDUINO_SCL_D15_Pin GPIO_PIN_8
-#define ARDUINO_SCL_D15_GPIO_Port GPIOB
+#define DCMI_SCL_Pin GPIO_PIN_8
+#define DCMI_SCL_GPIO_Port GPIOB
 #define ULPI_D7_Pin GPIO_PIN_5
 #define ULPI_D7_GPIO_Port GPIOB
 #define ARDUINO_PWM_D3_Pin GPIO_PIN_4
@@ -90,8 +90,8 @@ void Error_Handler(void);
 #define DCMI_D6_GPIO_Port GPIOE
 #define DCMI_D7_Pin GPIO_PIN_6
 #define DCMI_D7_GPIO_Port GPIOE
-#define ARDUINO_SDA_D14_Pin GPIO_PIN_9
-#define ARDUINO_SDA_D14_GPIO_Port GPIOB
+#define DCMI_SDA_Pin GPIO_PIN_9
+#define DCMI_SDA_GPIO_Port GPIOB
 #define VCP_RX_Pin GPIO_PIN_7
 #define VCP_RX_GPIO_Port GPIOB
 #define QSPI_NCS_Pin GPIO_PIN_6

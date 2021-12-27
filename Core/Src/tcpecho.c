@@ -40,11 +40,10 @@
 
 #define TCPECHO_THREAD_PRIO  ( tskIDLE_PRIORITY + 4 )
 
-char TxBuf [] = "Hello Hello!sdlkfjskljdf;klsjdflksajdflkjsadfkjsa;lkdjf;lsadkjf;lsakdjf;lkdsajf;sadj"
-		";lskdjf;lsakjdf;laksdjf;lksadjfl;ksadjfl;ksadjf;lksadjfsad;lkfjsad;kljfsd;kljfsad;lkjf";
+uint8_t ImageBuffer[38400];
 
 /*-----------------------------------------------------------------------------------*/
-static void tcpecho_thread(void *arg)
+static void tcpip_thread(void *arg)
 {
   struct netconn *conn, *newconn;
   err_t err, accept_err;
@@ -82,7 +81,7 @@ static void tcpecho_thread(void *arg)
             {
               netbuf_data(buf, &data, &len);
               //netconn_write(newconn, data, len, NETCONN_COPY);
-              netconn_write(newconn, TxBuf, sizeof(TxBuf), NETCONN_COPY);
+              netconn_write(newconn, ImageBuffer, 38400, NETCONN_COPY);
           
             } 
             while (netbuf_next(buf) >= 0);
@@ -106,7 +105,7 @@ static void tcpecho_thread(void *arg)
 
 void tcpecho_init(void)
 {
-  sys_thread_new("tcpecho_thread", tcpecho_thread, NULL, DEFAULT_THREAD_STACKSIZE, TCPECHO_THREAD_PRIO);
+  sys_thread_new("tcpecho_thread", tcpip_thread, NULL, DEFAULT_THREAD_STACKSIZE, TCPECHO_THREAD_PRIO);
 }
 /*-----------------------------------------------------------------------------------*/
 
