@@ -42,13 +42,13 @@
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
-typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define 		IMAGE_SIZE			57600
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -70,47 +70,20 @@ UART_HandleTypeDef huart6;
 
 /* Definitions for EthernetTask */
 osThreadId_t EthernetTaskHandle;
-uint32_t EthernetTaskBuffer[ 512 ];
-osStaticThreadDef_t EthernetTaskControlBlock;
 const osThreadAttr_t EthernetTask_attributes = {
   .name = "EthernetTask",
-  .cb_mem = &EthernetTaskControlBlock,
-  .cb_size = sizeof(EthernetTaskControlBlock),
-  .stack_mem = &EthernetTaskBuffer[0],
-  .stack_size = sizeof(EthernetTaskBuffer),
+  .stack_size = 2048 * 4,
   .priority = (osPriority_t) osPriorityHigh7,
-};
-/* Definitions for CameraTask */
-osThreadId_t CameraTaskHandle;
-uint32_t CameraTaskBuffer[ 512 ];
-osStaticThreadDef_t CameraTaskControlBlock;
-const osThreadAttr_t CameraTask_attributes = {
-  .name = "CameraTask",
-  .cb_mem = &CameraTaskControlBlock,
-  .cb_size = sizeof(CameraTaskControlBlock),
-  .stack_mem = &CameraTaskBuffer[0],
-  .stack_size = sizeof(CameraTaskBuffer),
-  .priority = (osPriority_t) osPriorityHigh,
-};
-/* Definitions for LedTask */
-osThreadId_t LedTaskHandle;
-uint32_t LedTaskBuffer[ 128 ];
-osStaticThreadDef_t LedTaskControlBlock;
-const osThreadAttr_t LedTask_attributes = {
-  .name = "LedTask",
-  .cb_mem = &LedTaskControlBlock,
-  .cb_size = sizeof(LedTaskControlBlock),
-  .stack_mem = &LedTaskBuffer[0],
-  .stack_size = sizeof(LedTaskBuffer),
-  .priority = (osPriority_t) osPriorityLow,
 };
 /* USER CODE BEGIN PV */
 uint8_t TxData [] = {0x01, 0x04, 0x75, 0x31, 0x00, 0x05, 0x7B, 0xCA};
 uint8_t RxData [15] = {0};
+uint8_t CameraID[2] = {0};
 
 OV5640_Object_t Camera;
 
-uint8_t ImageBuffer[38400] = {0};
+
+uint8_t ImageBuffer[IMAGE_SIZE] = {0};
 
 extern void tcpecho_init(void);
 /* USER CODE END PV */
@@ -125,8 +98,6 @@ static void MX_DMA_Init(void);
 static void MX_DCMI_Init(void);
 static void MX_I2C1_Init(void);
 void StartEthernetTask(void *argument);
-void StartCameraTask(void *argument);
-void StartLedTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -173,10 +144,12 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 
-	OV5640_Init(&Camera, OV5640_R160x120, OV5640_RGB565);
-	HAL_Delay(1000);
+	//OV5640_ReadID(&Camera, CameraID);
+	//HAL_Delay(1000);
+	OV5640_Init(&Camera, OV5640_R800x480, OV5640_JPEG);
+	HAL_Delay(500);
 
-
+	//HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)ImageBuffer, IMAGE_SIZE/4);
 
 
   /* USER CODE END 2 */
@@ -203,12 +176,6 @@ int main(void)
   /* Create the thread(s) */
   /* creation of EthernetTask */
   EthernetTaskHandle = osThreadNew(StartEthernetTask, NULL, &EthernetTask_attributes);
-
-  /* creation of CameraTask */
-  CameraTaskHandle = osThreadNew(StartCameraTask, NULL, &CameraTask_attributes);
-
-  /* creation of LedTask */
-  LedTaskHandle = osThreadNew(StartLedTask, NULL, &LedTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -253,12 +220,13 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 25;
-  RCC_OscInitStruct.PLL.PLLN = 432;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLM = 8;
+  RCC_OscInitStruct.PLL.PLLN = 216;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -308,7 +276,7 @@ static void MX_DCMI_Init(void)
   hdcmi.Init.HSPolarity = DCMI_HSPOLARITY_HIGH;
   hdcmi.Init.CaptureRate = DCMI_CR_ALL_FRAME;
   hdcmi.Init.ExtendedDataMode = DCMI_EXTEND_DATA_8B;
-  hdcmi.Init.JPEGMode = DCMI_JPEG_DISABLE;
+  hdcmi.Init.JPEGMode = DCMI_JPEG_ENABLE;
   hdcmi.Init.ByteSelectMode = DCMI_BSM_ALL;
   hdcmi.Init.ByteSelectStart = DCMI_OEBS_ODD;
   hdcmi.Init.LineSelectMode = DCMI_LSM_ALL;
@@ -930,8 +898,10 @@ static void MX_GPIO_Init(void)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-
-	HAL_UART_Transmit_IT(&huart6, TxData, 8);
+	HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_SET);
+	HAL_DCMI_Stop(&hdcmi);
+	HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)ImageBuffer, IMAGE_SIZE/4);
+	//HAL_UART_Transmit_IT(&huart6, TxData, 8);
 }
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
@@ -946,6 +916,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	//HAL_TIM_Base_Start_IT(&htim6);
 }
+
+
+
+
+
 
 /* USER CODE END 4 */
 
@@ -962,56 +937,62 @@ void StartEthernetTask(void *argument)
   MX_LWIP_Init();
   /* USER CODE BEGIN 5 */
 
-  	  tcpecho_init();
-
+  err_t err, accept_err;
+  struct netconn *conn, *newconn;
+  struct netbuf *buf;
+  void *data;
+  uint16_t len;
+  /* Create a new connection identifier. */
+  conn = netconn_new(NETCONN_TCP);
+  if (conn!=NULL)
+	{
+		/* Bind connection to well known port number 7. */
+		err = netconn_bind(conn, NULL, 7);
+		if (err == ERR_OK)
+		{
+			/* Tell connection to go into listening mode. */
+			netconn_listen(conn);
+		}
+		else
+		{
+			/*delete netconn if the error*/
+			netconn_delete(conn);
+		}
+	}
 
   /* Infinite loop */
   for(;;)
   {
-	osDelay(1);
+	  /* Grab new connection. */
+	   accept_err = netconn_accept(conn, &newconn);
+
+	  /* Process the new connection. */
+	  if (accept_err == ERR_OK)
+	  {
+
+		while (netconn_recv(newconn, &buf) == ERR_OK)
+		{
+		  do
+		  {
+			netbuf_data(buf, &data, &len);
+			//netconn_write(newconn, data, len, NETCONN_COPY);
+			netconn_write(newconn, ImageBuffer, 50000, NETCONN_COPY);
+
+
+		  }
+		  while (netbuf_next(buf) >= 0);
+
+		  netbuf_delete(buf);
+		}
+
+		/* Close connection and discard connection identifier. */
+		netconn_close(newconn);
+		netconn_delete(newconn);
+	  }
+
+	osDelay(100);
   }
   /* USER CODE END 5 */
-}
-
-/* USER CODE BEGIN Header_StartCameraTask */
-/**
-* @brief Function implementing the CameraTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartCameraTask */
-void StartCameraTask(void *argument)
-{
-  /* USER CODE BEGIN StartCameraTask */
-	HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)ImageBuffer, 9600);
-
-  /* Infinite loop */
-  for(;;)
-  {
-
-
-    osDelay(100);
-  }
-  /* USER CODE END StartCameraTask */
-}
-
-/* USER CODE BEGIN Header_StartLedTask */
-/**
-* @brief Function implementing the LedTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartLedTask */
-void StartLedTask(void *argument)
-{
-  /* USER CODE BEGIN StartLedTask */
-  /* Infinite loop */
-  for(;;)
-  {
-	  HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
-    osDelay(200);
-  }
-  /* USER CODE END StartLedTask */
 }
 
 /**

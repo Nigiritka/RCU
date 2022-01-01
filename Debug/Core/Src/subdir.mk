@@ -14,8 +14,7 @@ C_SRCS += \
 ../Core/Src/stm32f7xx_it.c \
 ../Core/Src/syscalls.c \
 ../Core/Src/sysmem.c \
-../Core/Src/system_stm32f7xx.c \
-../Core/Src/tcpecho.c 
+../Core/Src/system_stm32f7xx.c 
 
 OBJS += \
 ./Core/Src/freertos.o \
@@ -27,8 +26,7 @@ OBJS += \
 ./Core/Src/stm32f7xx_it.o \
 ./Core/Src/syscalls.o \
 ./Core/Src/sysmem.o \
-./Core/Src/system_stm32f7xx.o \
-./Core/Src/tcpecho.o 
+./Core/Src/system_stm32f7xx.o 
 
 C_DEPS += \
 ./Core/Src/freertos.d \
@@ -40,8 +38,7 @@ C_DEPS += \
 ./Core/Src/stm32f7xx_it.d \
 ./Core/Src/syscalls.d \
 ./Core/Src/sysmem.d \
-./Core/Src/system_stm32f7xx.d \
-./Core/Src/tcpecho.d 
+./Core/Src/system_stm32f7xx.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -51,7 +48,7 @@ Core/Src/%.o: ../Core/Src/%.c Core/Src/subdir.mk
 clean: clean-Core-2f-Src
 
 clean-Core-2f-Src:
-	-$(RM) ./Core/Src/freertos.d ./Core/Src/freertos.o ./Core/Src/main.d ./Core/Src/main.o ./Core/Src/ov5640.d ./Core/Src/ov5640.o ./Core/Src/ov5640_reg.d ./Core/Src/ov5640_reg.o ./Core/Src/stm32f7xx_hal_msp.d ./Core/Src/stm32f7xx_hal_msp.o ./Core/Src/stm32f7xx_hal_timebase_tim.d ./Core/Src/stm32f7xx_hal_timebase_tim.o ./Core/Src/stm32f7xx_it.d ./Core/Src/stm32f7xx_it.o ./Core/Src/syscalls.d ./Core/Src/syscalls.o ./Core/Src/sysmem.d ./Core/Src/sysmem.o ./Core/Src/system_stm32f7xx.d ./Core/Src/system_stm32f7xx.o ./Core/Src/tcpecho.d ./Core/Src/tcpecho.o
+	-$(RM) ./Core/Src/freertos.d ./Core/Src/freertos.o ./Core/Src/main.d ./Core/Src/main.o ./Core/Src/ov5640.d ./Core/Src/ov5640.o ./Core/Src/ov5640_reg.d ./Core/Src/ov5640_reg.o ./Core/Src/stm32f7xx_hal_msp.d ./Core/Src/stm32f7xx_hal_msp.o ./Core/Src/stm32f7xx_hal_timebase_tim.d ./Core/Src/stm32f7xx_hal_timebase_tim.o ./Core/Src/stm32f7xx_it.d ./Core/Src/stm32f7xx_it.o ./Core/Src/syscalls.d ./Core/Src/syscalls.o ./Core/Src/sysmem.d ./Core/Src/sysmem.o ./Core/Src/system_stm32f7xx.d ./Core/Src/system_stm32f7xx.o
 
 .PHONY: clean-Core-2f-Src
 

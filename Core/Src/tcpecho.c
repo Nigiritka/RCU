@@ -40,7 +40,7 @@
 
 #define TCPECHO_THREAD_PRIO  ( tskIDLE_PRIORITY + 4 )
 
-uint8_t ImageBuffer[38400];
+extern uint8_t ImageBuffer[];
 
 /*-----------------------------------------------------------------------------------*/
 static void tcpip_thread(void *arg)
@@ -81,7 +81,7 @@ static void tcpip_thread(void *arg)
             {
               netbuf_data(buf, &data, &len);
               //netconn_write(newconn, data, len, NETCONN_COPY);
-              netconn_write(newconn, ImageBuffer, 38400, NETCONN_COPY);
+              netconn_write(newconn, ImageBuffer, 50000, NETCONN_COPY);
           
             } 
             while (netbuf_next(buf) >= 0);
