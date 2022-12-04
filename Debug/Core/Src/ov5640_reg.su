@@ -1,2 +1,0 @@
-ov5640_reg.c:51:9:ov5640_read_reg	32	static
-ov5640_reg.c:78:9:ov5640_write_reg	24	static

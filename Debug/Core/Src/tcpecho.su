@@ -1,2 +1,0 @@
-tcpecho.c:46:13:tcpip_thread	40	static
-tcpecho.c:106:6:tcpecho_init	16	static

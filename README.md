@@ -1,2 +1,0 @@
-# RCU
- Robot Control Unit
